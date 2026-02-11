@@ -37,14 +37,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Pull du conteneur depuis Docker Hub
+            # 1. Allez dans le dossier où se trouve votre projet sur le serveur
+            # Remplacez /home/user/my-project par votre vrai chemin
+            cd /home/${{ secrets.SERVER_USER }}/nodejs_postgres 
+
+            # 2. Mettre à jour l'image (Pas besoin de stop/rm manuel avec compose)
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
             
-            # Arrêt et suppression de l'ancien conteneur s'il existe
-            docker stop my-nodejs-app || true
-            docker rm my-nodejs-app || true
-            
-            # Lancement (UP) du nouveau conteneur
-            #docker run -d --name my-nodejs-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+            # 3. Relancer avec compose (il gérera le port 3001 défini dans votre fichier)
             docker compose up -d 
 
