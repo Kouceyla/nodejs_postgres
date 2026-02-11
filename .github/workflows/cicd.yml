@@ -41,10 +41,10 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
             
             # Arrêt et suppression de l'ancien conteneur s'il existe
-            docker stop my-nodejs-app-container || true
-            docker rm my-nodejs-app-container || true
+            docker stop my-nodejs-app || true
+            docker rm my-nodejs-app || true
             
             # Lancement (UP) du nouveau conteneur
-            #docker run -d --name my-nodejs-app-container -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+            #docker run -d --name my-nodejs-app -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
             docker compose up -d 
 
