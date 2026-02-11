@@ -45,4 +45,6 @@ jobs:
             docker rm my-nodejs-app-container || true
             
             # Lancement (UP) du nouveau conteneur
-            docker run -d --name my-nodejs-app-container -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+            #docker run -d --name my-nodejs-app-container -p 80:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+            docker compose up -d --name my-nodejs-app-container -p 0:3001 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+
