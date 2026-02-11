@@ -39,7 +39,7 @@ jobs:
           script: |
             # 1. Allez dans le dossier où se trouve votre projet sur le serveur
             # Remplacez /home/user/my-project par votre vrai chemin
-            cd ${{ secrets.SERVER_USER }}/nodejs_postgres 
+            cd /home/${{ secrets.SERVER_USER }}/my-nodejs_postgres 
 
             # 2. Mettre à jour l'image (Pas besoin de stop/rm manuel avec compose)
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
