@@ -25,12 +25,12 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t nodejs_postgres:latest .
-          docker tag nodejs_postgres:latest ${{ secrets.DOCKER_USERNAME }}/nodejs_postgres:latest
+          docker tag nodejs_postgres:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
 
       # 4️⃣ Push l'image sur Docker Hub
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nodejs_postgres:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
 
       # 5️⃣ Setup SSH pour déploiement
       - name: Setup SSH
@@ -43,12 +43,12 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ethan@51.44.223.183 "
             echo 'Pull de la dernière image Docker' &&
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs_postgres:latest &&
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest &&
 
             echo 'Arrêt et suppression de l’ancien conteneur' &&
             docker stop nodejs_postgres || true &&
             docker rm nodejs_postgres || true &&
 
             echo 'Lancement du nouveau conteneur' &&
-            docker run -d --name nodejs_postgres -p 3002:3002 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs_postgres:latest
+            docker run -d --name nodejs_postgres -p 3002:3002 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
           "
