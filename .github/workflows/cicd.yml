@@ -50,5 +50,5 @@ jobs:
             docker rm my-nodejs-app || true &&
 
             echo 'Lancement du nouveau conteneur' &&
-            docker run -d --name my-nodejs-app -p 3002:3002 ${{ secrets.DOCKER_USERNAME }}/my-nodejs-app:latest
+            docker run -d --name my-nodejs-app -p 3002:3000 ${{ secrets.DOCKER_USERNAME }}/my-nodejs-app:latest
           "
