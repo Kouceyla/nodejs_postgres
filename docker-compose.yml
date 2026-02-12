@@ -13,11 +13,9 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    restart: always
 
   node:
-    # Utilisation de l'image Docker Hub (identique au workflow)
-    image: ${DOCKERHUB_USERNAME}/my-nodejs-app:latest
+    build: .
     container_name: nodejs_app
     depends_on:
       - db
@@ -32,6 +30,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
     restart: unless-stopped
     command: ["npm", "run", "dev"]
+
 
 volumes:
   db_data:
