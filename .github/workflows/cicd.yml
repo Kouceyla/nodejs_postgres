@@ -3,7 +3,7 @@ name: CI/CD Docker
 on:
   push:
     branches:
-      - main   # Détecte le push sur la branche main
+      - main  
 
 jobs:
   build-and-deploy:
