@@ -1,54 +1,48 @@
-name: CI/CD Docker
+name: CI/CD Pipeline Docker
 
 on:
   push:
     branches:
-      - main  
+      - main # Détecte le push sur la branche main
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout du repo
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Login à Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3️⃣ Build et tag de l'image Docker
-      - name: Build Docker image
-        run: |
-          docker build -t nodejs_postgres:latest .
-          docker tag nodejs_postgres:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
-
-      # 4️⃣ Push l'image sur Docker Hub
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
-
-      # 5️⃣ Setup SSH pour déploiement
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@master
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          context: .
+          push: true
+          # Utilise le nom du projet défini dans package.json (mon-app)
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
 
-      # 6️⃣ Déployer le conteneur sur le serveur
-      - name: Deploy container
-        run: |
-          ssh -o StrictHostKeyChecking=no kouceyla@13.38.112.104 "
-            echo 'Pull de la dernière image Docker' &&
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest &&
-
-            echo 'Arrêt et suppression de l’ancien conteneur' &&
-            docker stop nodejs_postgres || true &&
-            docker rm nodejs_postgres || true &&
-
-            echo 'Lancement du nouveau conteneur' &&
-            docker run -d --name nodejs_postgres -p 3002:3002 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
-          "
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Pull du conteneur depuis Docker Hub
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
+            
+            # Arrêt et suppression de l'ancien conteneur s'il existe
+            docker stop my-nodejs-app-container || true
+            docker rm my-nodejs-app-container || true
+            
+            # Lancement (UP) du nouveau conteneur
+            docker run -d --name my-nodejs-app-container -p 3002:3000 ${{ secrets.DOCKERHUB_USERNAME }}/my-nodejs-app:latest
